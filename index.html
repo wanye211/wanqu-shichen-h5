@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>湾区十二时辰 · 参赛H5</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23B03A2E'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%23F5F1E8' font-family='serif'%3E辰%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@400;600;900&display=swap">
+<style>
+/* ===== 设计系统：水墨国风 · 四时四色 ===== */
+:root{
+  --paper:#F5F1E8; --paper-deep:#ECE5D6; --ink:#2A2A28; --ink-soft:#6E6558;
+  --cinnabar:#B03A2E; --cinnabar-deep:#8E2B21; --gold:#D4AF6E; --gold-deep:#A8843C;
+  --blue:#1E2A2E; --green:#6B7F5A; --line:rgba(42,42,40,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:'Noto Serif SC',serif; color:var(--ink); background:var(--blue);
+  display:flex; justify-content:center;
+  background-image:radial-gradient(ellipse at 20% 0%, rgba(107,127,90,.18) 0%, transparent 55%), radial-gradient(ellipse at 85% 100%, rgba(176,58,46,.16) 0%, transparent 50%);
+}
+.h5-shell{
+  width:100%; max-width:480px; min-height:100vh; position:relative; overflow:hidden;
+  background:var(--paper);
+  box-shadow:0 0 60px rgba(0,0,0,.35);
+}
+.view{position:absolute; inset:0; display:none; flex-direction:column; overflow:hidden;}
+.view.active{display:flex; opacity:1; animation:viewIn .45s cubic-bezier(.22,.9,.3,1) both;}
+@media (prefers-reduced-motion: reduce){ .view.active{animation:none;} }
+@keyframes viewIn{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;}}
+button{font-family:inherit; border:none; background:none; cursor:pointer; color:inherit;}
+.serif-title{font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;}
+
+/* ===== 通用控件 ===== */
+.seal{display:inline-flex; align-items:center; justify-content:center; background:var(--cinnabar); color:var(--paper); border-radius:6px; font-family:'ZCOOL XiaoWei',serif;}
+.topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 18px; position:absolute; top:0; left:0; right:0; z-index:30;}
+.topbar .brand{font-size:12px; letter-spacing:.3em; color:#000; background:rgba(255,255,255,.5); padding:4px 9px; border-radius:5px;}
+.topbar .back{font-size:22px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; color:var(--ink); border-radius:50%;}
+.back-btn{display:flex; align-items:center; gap:6px; font-size:13px; color:#000; text-shadow:0 1px 2px rgba(255,255,255,.7); letter-spacing:.12em;}
+.back-btn svg{width:14px;height:14px;}
+.reset-btn{display:flex; align-items:center; gap:4px; font-size:12px; color:#000; text-shadow:0 1px 2px rgba(255,255,255,.7); letter-spacing:.08em; border:1px solid rgba(0,0,0,.4); background:rgba(255,255,255,.4); padding:5px 10px; border-radius:5px; transition:all .2s;}
+.reset-btn:active{background:var(--ink); color:var(--paper);}
+.reset-btn svg{width:12px;height:12px;}
+.page-dot{position:absolute; bottom:22px; left:0; right:0; display:flex; justify-content:center; gap:8px; z-index:30;}
+.page-dot i{width:6px;height:6px;border-radius:50%;background:rgba(42,42,40,.2);}
+.page-dot i.on{background:var(--cinnabar); width:18px; border-radius:3px;}
+
+/* ===== 封面 ===== */
+#cover{background:var(--paper); justify-content:flex-end;}
+.cover-hero{position:relative; height:62vh; min-height:420px;}
+.cover-hero img{width:100%; height:100%; object-fit:cover; object-position:center 30%;}
+.cover-hero::after{content:""; position:absolute; inset:0; background:linear-gradient(to bottom, rgba(30,42,46,0) 30%, rgba(30,42,46,.55) 78%, rgba(30,42,46,.9) 100%);}
+.cover-hero .ring{position:absolute; top:8%; left:50%; transform:translateX(-50%); width:min(46vw,200px); aspect-ratio:1; z-index:5;
+  border:1px solid rgba(245,241,232,.75); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:64px; color:#F5F1E8;
+  text-shadow:0 2px 18px rgba(0,0,0,.5);
+  animation:ringSpin 46s linear infinite;}
+.cover-hero .ring::before{content:""; position:absolute; inset:-14px; border:1px dashed rgba(245,241,232,.4); border-radius:50%;}
+@keyframes ringSpin{to{transform:translateX(-50%) rotate(360deg);}}
+.cover-body{padding:28px 26px 40px; position:relative; background:var(--paper);}
+.cover-body .kicker{font-size:12px; letter-spacing:.42em; color:var(--cinnabar); margin-bottom:10px;}
+.cover-body h1{font-size:46px; line-height:1.18; letter-spacing:.08em; margin-bottom:10px;}
+.cover-body .sub{font-size:14px; color:var(--ink-soft); letter-spacing:.22em; margin-bottom:26px;}
+.cover-body .meta{font-size:11.5px; color:var(--ink-soft); letter-spacing:.1em; line-height:1.9; margin-bottom:22px; border-top:1px solid var(--line); padding-top:16px;}
+.enter-btn{width:100%; height:54px; display:flex; align-items:center; justify-content:center; gap:12px;
+  background:var(--cinnabar); color:var(--paper); font-size:16px; letter-spacing:.35em; border-radius:8px;
+  box-shadow:0 6px 20px rgba(176,58,46,.32); transition:transform .15s;}
+.enter-btn:active{transform:scale(.97);}
+.enter-btn svg{width:16px;height:16px;}
+
+/* ===== 时辰罗盘 ===== */
+#compass{background:var(--paper); padding-top:64px; align-items:center;}
+.compass-head{text-align:center; padding:8px 24px 6px;}
+.compass-head .kicker{font-size:11px; letter-spacing:.4em; color:var(--cinnabar); margin-bottom:8px;}
+.compass-head h2{font-size:27px; letter-spacing:.14em; margin-bottom:6px;}
+.compass-head p{font-size:12.5px; color:var(--ink-soft); letter-spacing:.14em;}
+.compass-wrap{position:relative; width:min(88vw, 396px); aspect-ratio:1; margin:14px auto 0;}
+.compass-disc{position:absolute; inset:6px; border-radius:50%; border:1.5px solid rgba(42,42,40,.5);
+  display:flex; align-items:center; justify-content:center; text-align:center;}
+.compass-disc::before{content:""; position:absolute; inset:16px; border-radius:50%; border:1px dashed rgba(42,42,40,.25);}
+.compass-disc::after{content:""; position:absolute; width:1px; height:66%; background:rgba(42,42,40,.14); top:17%; left:50%;}
+.compass-disc .core{position:relative; z-index:2;}
+.compass-disc .core b{display:block; font-family:'ZCOOL XiaoWei',serif; font-size:34px; letter-spacing:.12em; font-weight:400;}
+.compass-disc .core span{font-size:11px; color:var(--ink-soft); letter-spacing:.3em;}
+.cz{position:absolute; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--ink-soft); transform:translate(-50%,-50%);}
+.cz.main{width:56px; height:56px; border-radius:50%; background:var(--paper); border:1.5px solid rgba(42,42,40,.4);
+  font-size:22px; color:var(--ink); font-family:'ZCOOL XiaoWei',serif; transition:all .25s; z-index:3;}
+.cz.main.hot{background:var(--cinnabar); border-color:var(--cinnabar); color:var(--paper); box-shadow:0 4px 16px rgba(176,58,46,.35);}
+.circle-hint{margin-top:12px; text-align:center; font-size:11.5px; color:var(--ink-soft); letter-spacing:.2em;}
+.progress-strip{width:min(80vw,340px); margin:16px auto 0; display:flex; justify-content:space-between;}
+.progress-strip .slot{width:44px; height:44px; border-radius:8px; border:1.5px dashed rgba(42,42,40,.28); display:flex; align-items:center; justify-content:center;
+  font-family:'ZCOOL XiaoWei',serif; font-size:20px; color:rgba(42,42,40,.25); transition:all .3s;}
+.progress-strip .slot.filled{border-style:solid; border-color:var(--cinnabar); background:rgba(176,58,46,.08); color:var(--cinnabar);}
+.progress-strip .slot .t{font-size:10px; font-family:'Noto Serif SC',serif; color:var(--ink-soft);}
+.compass-foot{text-align:center; font-size:11px; color:var(--ink-soft); letter-spacing:.22em; padding:14px 0 30px;}
+
+/* ===== 支线场景 ===== */
+.scene{padding:0; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+.scene-top{position:relative; height:38vh; min-height:260px; flex-shrink:0;}
+.scene-top img{width:100%; height:100%; object-fit:cover; object-position:center 22%; opacity:.55;}
+.scene-top::after{content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(20,26,28,.78) 0%, rgba(20,26,28,.12) 55%, rgba(20,26,28,0) 100%);}
+.scene-top .tag{position:absolute; left:18px; bottom:14px; z-index:6; color:#FFFFFF; background:rgba(20,26,28,.55); padding:8px 14px 7px; border-radius:8px; text-shadow:0 1px 3px rgba(0,0,0,.45);}
+.scene-top .tag b{display:block; font-family:'ZCOOL XiaoWei',serif; font-size:27px; font-weight:400; letter-spacing:.1em; margin-bottom:4px;}
+.scene-top .tag span{font-size:11px; letter-spacing:.34em; opacity:.95;}
+.scene-top .clock{position:absolute; right:18px; bottom:18px; z-index:6; font-size:12px; letter-spacing:.2em; color:#FFFFFF; background:rgba(20,26,28,.5); border:1px solid rgba(255,255,255,.4); padding:5px 10px; border-radius:4px; text-shadow:0 1px 2px rgba(0,0,0,.4);}
+.scene-body{padding:22px 20px 34px;}
+.scene-body .sec-label{font-size:12px; letter-spacing:.3em; color:var(--cinnabar); margin-bottom:10px;}
+.scene-body .focus{border-top:1px solid var(--line); padding:12px 0 4px; margin-bottom:14px;}
+.scene-body .focus b{font-size:15px; letter-spacing:.06em; display:block; margin-bottom:4px;}
+.scene-body .focus p{font-size:12.5px; color:var(--ink-soft); line-height:1.8;}
+.stage{position:relative; background:var(--paper-deep); border-radius:12px; padding:22px 16px 20px; margin-bottom:16px; min-height:210px; overflow:hidden;}
+.stage .stage-tip{font-size:11.5px; color:var(--ink-soft); letter-spacing:.14em; text-align:center; margin-bottom:14px;}
+
+/* 卯时 · 茶壶冲茶 */
+.teaset{position:relative; height:150px;}
+.pot{position:absolute; left:4%; bottom:8px; width:86px; height:70px;}
+.pot .body{position:absolute; inset:0 0 16px 0; background:linear-gradient(160deg,#4A3630,#2A211C); border-radius:50% 50% 42% 42%;}
+.pot .spout{position:absolute; right:-14px; top:10px; width:34px; height:8px; background:#4A3630; border-radius:6px; transform:rotate(-14deg);}
+.pot .lid{position:absolute; top:-6px; left:16px; width:60px; height:14px; background:#5A4438; border-radius:8px;}
+.pot .knob{position:absolute; top:-14px; left:42px; width:16px; height:12px; background:#8E2B21; border-radius:50%;}
+.pot .handle{position:absolute; left:-14px; top:16px; width:14px; height:42px; border:6px solid #4A3630; border-left:none; border-radius:0 10px 10px 0;}
+.cups{position:absolute; right:4%; bottom:8px; display:flex; gap:8px;}
+.cup{position:relative; width:50px; height:56px;}
+.cup .rim{position:absolute; inset:0 0 16px 0; border-radius:4px 4px 10px 10px; border:4.5px solid #F1EADB; background:transparent;}
+.cup .tea{position:absolute; left:5px; right:5px; bottom:14px; height:0%; background:linear-gradient(#C98A3B,#8A5A24); border-radius:2px; transition:height 1.1s cubic-bezier(.3,.7,.4,1);}
+.steam{position:absolute; top:-10px; left:0; right:0; height:120px; pointer-events:none;}
+.steam i{position:absolute; bottom:0; width:10px; height:34px; border-radius:50%; background:radial-gradient(rgba(245,241,232,.9), rgba(245,241,232,0));
+  filter:blur(2px); opacity:0; animation:steamUp 3.2s linear infinite;}
+.steam i:nth-child(1){left:34%; animation-delay:0s; animation-duration:3.4s;}
+.steam i:nth-child(2){left:48%; animation-delay:1.1s; animation-duration:3.0s;}
+.steam i:nth-child(3){left:60%; animation-delay:2.0s; animation-duration:3.6s;}
+@keyframes steamUp{0%{opacity:0; transform:translateY(0) scale(.8);} 18%{opacity:.85;} 100%{opacity:0; transform:translateY(-110px) scale(1.5);}}
+.teaset .stream{position:absolute; left:114px; top:86px; width:8px; height:0;
+  background:linear-gradient(rgba(255,250,235,.95), rgba(200,150,90,.85)); border-radius:4px;
+  transform-origin:0 0; transition:height .5s ease-out, transform .5s ease-out;}
+
+/* 午时 · 龙舟鼓 */
+.drum{position:relative; width:150px; height:118px; margin:0 auto;}
+.drum .face{position:absolute; inset:0 8px 22px 8px; border-radius:50%; background:radial-gradient(circle at 38% 32%, #E8C28A, #B98A3E 60%, #8E5F24);
+  border:6px solid #5A4438; box-shadow:0 10px 20px rgba(0,0,0,.22);}
+.drum .face::after{content:""; position:absolute; inset:18px; border-radius:50%; border:1.5px solid rgba(255,255,255,.35);}
+.drum .side{position:absolute; left:20px; right:20px; bottom:0; height:30px; background:#7A4A26; border-radius:0 0 10px 10px;}
+.drum .stick{position:absolute; top:-24px; width:5px; height:34px; background:#8E2B21; border-radius:4px; transform-origin:50% 100%;}
+.drum .stick.l{left:28px; transform:rotate(24deg);}
+.drum .stick.r{right:28px; transform:rotate(-24deg);}
+.drum.bang .stick.l{animation:bangL .28s;}
+.drum.bang .stick.r{animation:bangR .28s;}
+@keyframes bangL{0%{transform:rotate(24deg);} 50%{transform:rotate(64deg);} 100%{transform:rotate(24deg);}}
+@keyframes bangR{0%{transform:rotate(-24deg);} 50%{transform:rotate(-64deg);} 100%{transform:rotate(-24deg);}}
+.drum.bang .face{animation:drumPulse .28s;}
+@keyframes drumPulse{0%{transform:scale(1);} 50%{transform:scale(.94);} 100%{transform:scale(1);}}
+.screen-shake{animation:shake .3s;}
+@keyframes shake{0%,100%{transform:translate(0,0);} 20%{transform:translate(-4px,2px);} 40%{transform:translate(4px,-2px);} 60%{transform:translate(-3px,-1px);} 80%{transform:translate(3px,1px);}}
+.boat{position:relative; height:64px; margin-top:8px;}
+.boat .canoe{position:absolute; left:6%; bottom:6px; width:118px; height:46px; transition:left .45s cubic-bezier(.2,.8,.3,1);}
+.boat .canoe svg{width:100%; height:100%; overflow:visible;}
+.boat .canoe .paddle-oar{transform-origin:150px 26px; transform:rotate(-22deg);}
+.boat .canoe.paddling .paddle-oar{animation:oarStroke .5s ease-in-out;}
+@keyframes oarStroke{0%,100%{transform:rotate(-22deg);} 50%{transform:rotate(24deg);}}
+.boat .canoe .body-sway{animation:canoeSway 3s ease-in-out infinite;}
+@keyframes canoeSway{0%,100%{transform:rotate(0);} 50%{transform:rotate(-1.6deg);}}
+.boat .oars{position:absolute; right:6%; bottom:6px; font-size:13px; letter-spacing:.2em; color:var(--ink-soft);}
+.boat .wave{position:absolute; bottom:0; left:0; right:0; height:10px; background:repeating-linear-gradient(90deg, rgba(30,42,46,.28) 0 8px, transparent 8px 20px); opacity:.5;}
+.boat .goal{position:absolute; right:3%; bottom:14px; font-size:12px; color:var(--cinnabar); letter-spacing:.1em; border-bottom:1px dashed var(--cinnabar);}
+.paddle-prog{display:flex; justify-content:center; gap:8px; margin-top:8px;}
+.paddle-prog i{width:22px; height:6px; border-radius:3px; background:rgba(42,42,40,.14); transition:background .3s;}
+.paddle-prog i.on{background:var(--cinnabar);}
+
+/* 酉时 · 灯笼（六种特色造型：油纸 / 纱灯 / 走马 / 宫灯 / 鱼灯 / 龙灯） */
+.lanterns{display:flex; justify-content:space-between; align-items:flex-end; padding:0 6px; height:150px;}
+.lantern{position:relative; width:52px; display:flex; flex-direction:column; align-items:center; cursor:pointer;}
+.lantern .wire{width:2px; height:34px; background:rgba(42,42,40,.35);}
+.lantern .lamp{position:relative; width:44px; height:56px; filter:drop-shadow(0 0 0 rgba(232,165,80,0)); transition:filter .5s;}
+.lantern .lamp svg{width:100%; height:100%; display:block; opacity:.5; transition:opacity .5s;}
+.lantern .tassel{width:2px; height:12px; background:rgba(42,42,40,.4);}
+.lantern .tag{position:absolute; top:-26px; left:50%; transform:translateX(-50%); font-size:11.5px; font-weight:600; color:#000; letter-spacing:.1em; white-space:nowrap;}
+.lantern.lit .lamp{filter:drop-shadow(0 0 14px rgba(232,165,80,.9)) drop-shadow(0 0 34px rgba(232,165,80,.35));}
+.lantern.lit .lamp svg{opacity:1;}
+
+/* 子时 · 砚与绣（研墨白底黑墨） */
+.inkstone{position:relative; width:170px; height:128px; margin:6px auto 0;}
+.inkstone .slab{position:absolute; inset:0 0 20px 0; background:linear-gradient(150deg,#FFFFFF,#E9E2D2); border-radius:8px; border:1px solid rgba(42,42,40,.18); box-shadow:0 10px 22px rgba(0,0,0,.16);}
+.inkstone .pool{position:absolute; left:24px; right:24px; top:22px; height:52px; background:#FAF7EF; border:1px solid rgba(42,42,40,.22); border-radius:6px;}
+.inkstone .pool .ink{position:absolute; inset:0; border-radius:6px; background:radial-gradient(circle at 50% 50%, #0C0C0C, #141414 58%, transparent 78%); opacity:0; transition:opacity 1.2s;}
+.inkstone .stone{position:absolute; right:6px; bottom:14px; width:52px; height:16px; background:#D8D2C2; border:1px solid rgba(42,42,40,.2); border-radius:8px; transform:rotate(-6deg);}
+.inkstone .grind{position:absolute; left:50%; top:50%; width:44px; height:44px; margin:-22px 0 0 -22px; border:6px solid rgba(42,42,40,.2); border-top-color:rgba(42,42,40,.85); border-radius:50%; opacity:0; animation:grindRotate .8s linear infinite;}
+@keyframes grindRotate{to{transform:rotate(360deg);}}
+.grinding .inkstone .grind{opacity:1;}
+.grind-on .inkstone .ink{opacity:.95;}
+.grind-zone{text-align:center; font-size:11px; color:var(--ink-soft); letter-spacing:.16em; margin-top:6px;}
+.embroid{position:relative; width:190px; height:190px; margin:4px auto 0;}
+.embroid .frame{position:absolute; inset:0; border-radius:50%; border:14px solid #6B4318; box-shadow:inset 0 0 0 1px rgba(245,241,232,.2), 0 8px 18px rgba(0,0,0,.2);}
+.embroid .cloth{position:absolute; inset:16px; border-radius:50%; background:radial-gradient(circle at 50% 42%, #F6F0E2, #E9E0CB); overflow:hidden;}
+.embroid svg{position:absolute; inset:0; width:100%; height:100%;}
+.embroid .needle{position:absolute; width:2px; height:26px; background:#2A211C; border-radius:2px; opacity:0; transform-origin:50% 100%;}
+.embroid.stitching .needle{opacity:1; animation:needleWork 1s ease-in-out infinite;}
+@keyframes needleWork{0%,100%{transform:translateY(0) rotate(0);} 50%{transform:translateY(-12px) rotate(6deg);}}
+.embroid .stitch-count{position:absolute; bottom:8px; left:0; right:0; text-align:center; font-size:11px; color:var(--ink-soft); letter-spacing:.18em;}
+.stitch-line{animation:stitchIn .55s ease-out both;}
+@keyframes stitchIn{0%{opacity:0; transform:scale(.6); transform-origin:center;} 100%{opacity:1; transform:scale(1);}}
+
+/* 印记按钮 */
+.seal-btn{width:100%; height:52px; display:flex; align-items:center; justify-content:center; gap:10px; border-radius:8px;
+  background:var(--ink); color:var(--paper); font-size:15px; letter-spacing:.3em; transition:all .25s;}
+.seal-btn:disabled{background:rgba(42,42,40,.12); color:rgba(42,42,40,.4);}
+.seal-btn.ready{background:var(--cinnabar); box-shadow:0 6px 18px rgba(176,58,46,.3);}
+.seal-btn.done{background:var(--green);}
+.seal-btn svg{width:15px;height:15px;}
+.seal-note{font-size:10.5px; color:var(--ink-soft); text-align:center; letter-spacing:.2em; margin-top:10px;}
+
+/* ===== 汇聚 · 时辰笺 ===== */
+#gift{padding-top:58px; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+.gift-body{padding:14px 20px 40px;}
+.gift-head{text-align:center; margin-bottom:16px;}
+.gift-head .kicker{font-size:11px; letter-spacing:.4em; color:var(--cinnabar); margin-bottom:8px;}
+.gift-head h2{font-size:26px; letter-spacing:.12em; margin-bottom:6px;}
+.gift-head p{font-size:12.5px; color:var(--ink-soft); letter-spacing:.14em;}
+.bands{display:flex; gap:6px; height:10px; margin:18px 0 6px;}
+.bands i{flex:1; border-radius:3px;}
+.bands i:nth-child(1){background:var(--green);} .bands i:nth-child(2){background:var(--cinnabar);}
+.bands i:nth-child(3){background:var(--gold);} .bands i:nth-child(4){background:var(--blue);}
+.gift-lock{text-align:center; padding:30px 0 8px;}
+.gift-lock .lock-ring{width:96px;height:96px;margin:0 auto 16px;border-radius:50%;border:2px dashed rgba(42,42,40,.3); display:flex;align-items:center;justify-content:center;font-size:34px;color:rgba(42,42,40,.3);}
+.gift-lock p{font-size:14px; color:var(--ink-soft); letter-spacing:.1em; line-height:2;}
+.gift-lock .to-compass{display:inline-block; margin-top:14px; padding:10px 26px; border:1px solid var(--cinnabar); color:var(--cinnabar); border-radius:6px; font-size:13px; letter-spacing:.3em;}
+.letter{position:relative; border-radius:10px; padding:22px 20px 20px; color:var(--paper); text-align:center;
+  background:linear-gradient(160deg, rgba(30,42,46,.96), rgba(20,26,28,.98));}
+.letter::before{content:""; position:absolute; inset:10px; border:1px solid rgba(245,241,232,.25); border-radius:6px; pointer-events:none;}
+.letter .paper-top{display:flex; justify-content:space-between; align-items:center; font-size:10.5px; letter-spacing:.24em; color:rgba(245,241,232,.75); margin-bottom:20px;}
+.letter .letter-title{font-size:30px; letter-spacing:.2em; margin:8px 0 4px;}
+.letter .letter-sub{font-size:12px; letter-spacing:.3em; color:var(--gold); margin-bottom:18px;}
+.letter .seal-row{display:flex; justify-content:center; gap:14px; margin:18px 0;}
+.letter .seal-row i{width:44px; height:44px; border-radius:8px; background:var(--cinnabar); display:flex; align-items:center; justify-content:center; font-size:19px; font-family:'ZCOOL XiaoWei',serif; font-style:normal; color:var(--paper); box-shadow:0 3px 10px rgba(0,0,0,.3);}
+.letter .who{font-size:15px; letter-spacing:.12em; margin-top:6px;}
+.letter .when{font-size:10.5px; color:rgba(245,241,232,.65); letter-spacing:.2em; margin-top:8px;}
+.letter .slogan{font-size:13px; letter-spacing:.34em; color:var(--gold); margin-top:18px; padding-top:14px; border-top:1px solid rgba(245,241,232,.2);}
+.gift-actions{display:flex; gap:12px; margin-top:18px;}
+.gift-actions button{flex:1; height:50px; border-radius:8px; font-size:13.5px; letter-spacing:.2em;}
+.btn-save{background:var(--cinnabar); color:var(--paper);}
+.btn-share{background:var(--paper); color:var(--ink); border:1.5px solid rgba(42,42,40,.35);}
+.gift-tip{font-size:10.5px; color:var(--ink-soft); text-align:center; letter-spacing:.14em; margin-top:14px; line-height:1.9;}
+</style>
+</head>
+<body>
+<div class="h5-shell" id="app">
+
+  <!-- ===== 视图：封面 ===== -->
+  <section class="view active" id="cover">
+    <div class="cover-hero">
+      <div class="ring">辰</div>
+      <img src="assets/cover.jpg" alt="时辰罗盘悬浮湾区天际">
+    </div>
+    <div class="cover-body">
+      <h1 class="serif-title">湾区十二时辰</h1>
+      <div class="sub">一城一时辰 · 一页一湾区</div>
+      <button class="enter-btn" onclick="go('compass')">
+        转动时辰罗盘
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== 视图：时辰罗盘 ===== -->
+  <section class="view" id="compass">
+    <div class="topbar">
+      <span class="brand">湾区十二时辰</span>
+      <button class="back-btn" onclick="go('cover')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>回到封面</button>
+      <button class="reset-btn" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v6h6"/><path d="M4 10a8 8 0 1 1 2.3 5.7"/></svg>重玩</button>
+    </div>
+    <div class="compass-head">
+      <div class="kicker">时辰罗盘 · COMPASS</div>
+      <h2 class="serif-title">今日何辰，行至何处</h2>
+      <p>十二时辰环列四方，卯午酉子四时已点亮</p>
+    </div>
+    <div class="compass-wrap" id="compassWrap"></div>
+    <div class="circle-hint">指尖点选时辰，随时辰流转进入湾区图景</div>
+    <div class="progress-strip" id="sealStrip">
+      <div class="slot" data-k="mao">茶</div>
+      <div class="slot" data-k="wu">舟</div>
+      <div class="slot" data-k="you">灯</div>
+      <div class="slot" data-k="zi">匠</div>
+    </div>
+    <div class="compass-foot" id="giftHint">集齐茶 · 舟 · 灯 · 匠 四枚印记，解锁湾区时辰笺</div>
+  </section>
+
+  <!-- ===== 视图：卯时 · 工夫茶 ===== -->
+  <section class="view scene" id="mao">
+    <div class="topbar">
+      <button class="back-btn" onclick="go('compass')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>时辰罗盘</button>
+      <span class="brand">卯时 · 工夫茶</span>
+      <button class="reset-btn" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v6h6"/><path d="M4 10a8 8 0 1 1 2.3 5.7"/></svg>重玩</button>
+    </div>
+    <div class="scene-top">
+      <img src="assets/maoshi.jpg" alt="晨光茶楼">
+      <div class="tag"><b>卯时 · 晨光茶楼</b><span>EAST · THE FIRST BREW</span></div>
+      <div class="clock">05:00 — 07:00</div>
+    </div>
+    <div class="scene-body">
+      <div class="sec-label">非遗焦点 · 潮州工夫茶艺</div>
+      <div class="focus"><b>二十一式冲泡仪轨</b><p>关公巡城、韩信点兵，一盅两件里是湾区最温柔的开场。</p></div>
+      <div class="stage" id="teaStage">
+        <div class="stage-tip">点击茶壶，看第一缕晨茶如何沏成</div>
+        <div class="steam"><i></i><i></i><i></i></div>
+        <div class="teaset">
+          <div class="stream" id="teaStream"></div>
+          <div class="pot" id="teaPot">
+            <div class="knob"></div><div class="lid"></div><div class="spout"></div><div class="handle"></div><div class="body"></div>
+          </div>
+          <div class="cups">
+            <div class="cup" id="teaCup1"><div class="tea"></div><div class="rim"></div></div>
+            <div class="cup" id="teaCup2"><div class="tea"></div><div class="rim"></div></div>
+            <div class="cup" id="teaCup3"><div class="tea"></div><div class="rim"></div></div>
+          </div>
+        </div>
+      </div>
+      <button class="seal-btn" id="sealMao" disabled>尚未集得 · 茶</button>
+      <div class="seal-note">沏满三杯晨茶，即得「茶」字印记</div>
+    </div>
+  </section>
+
+  <!-- ===== 视图：午时 · 龙舟鼓乐 ===== -->
+  <section class="view scene" id="wu">
+    <div class="topbar">
+      <button class="back-btn" onclick="go('compass')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>时辰罗盘</button>
+      <span class="brand">午时 · 龙舟鼓乐</span>
+      <button class="reset-btn" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v6h6"/><path d="M4 10a8 8 0 1 1 2.3 5.7"/></svg>重玩</button>
+    </div>
+    <div class="scene-top">
+      <img src="assets/wushi.jpg" alt="江畔竞渡">
+      <div class="tag"><b>午时 · 江畔竞渡</b><span>NOON · THE DRAGON DRUM</span></div>
+      <div class="clock">11:00 — 13:00</div>
+    </div>
+    <div class="scene-body">
+      <div class="sec-label">非遗焦点 · 龙舟竞渡 · 赛龙夺锦</div>
+      <div class="focus"><b>鼓点如雷，桨影翻飞</b><p>广府龙舟与广东音乐《赛龙夺锦》的节拍，在正午的珠江上共振。</p></div>
+      <div class="stage" id="drumStage">
+        <div class="stage-tip">连击鼓面振士气，再把龙舟划向终点</div>
+        <div class="drum" id="drumBox">
+          <div class="stick l"></div><div class="stick r"></div>
+          <div class="face"></div><div class="side"></div>
+        </div>
+        <div class="boat">
+          <div class="goal">终 点</div>
+          <div class="canoe" id="canoe">
+            <svg viewBox="0 0 220 60">
+              <g class="body-sway">
+                <path d="M10 36 Q70 52 150 44 Q192 40 214 32 Q182 20 116 24 Q48 26 10 36 Z" fill="#8E5F24"/>
+                <path d="M10 36 Q70 52 150 44 Q192 40 214 32 Q182 20 116 24 Q48 26 10 36 Z" fill="none" stroke="#D4AF6E" stroke-width="2.4" stroke-linejoin="round"/>
+                <path d="M214 32 Q226 22 222 12 Q214 18 210 24 Z" fill="#B03A2E"/>
+                <path d="M10 36 Q2 30 6 26 Q14 30 12 34 Z" fill="#B03A2E"/>
+                <path d="M116 22 Q118 8 124 10 Q120 20 118 24 Z" fill="#D4AF6E"/>
+                <path class="paddle-oar" d="M150 22 L150 52" stroke="#2A211C" stroke-width="3.4" stroke-linecap="round"/>
+              </g>
+            </svg>
+          </div>
+          <div class="wave"></div>
+        </div>
+        <div class="paddle-prog" id="paddleProg">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+      <button class="seal-btn" id="sealWu" disabled>尚未集得 · 舟</button>
+      <div class="seal-note">擂鼓五次、划桨五程，即得「舟」字印记</div>
+    </div>
+  </section>
+
+  <!-- ===== 视图：酉时 · 灯彩夜市 ===== -->
+  <section class="view scene" id="you">
+    <div class="topbar">
+      <button class="back-btn" onclick="go('compass')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>时辰罗盘</button>
+      <span class="brand">酉时 · 灯彩夜市</span>
+      <button class="reset-btn" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v6h6"/><path d="M4 10a8 8 0 1 1 2.3 5.7"/></svg>重玩</button>
+    </div>
+    <div class="scene-top">
+      <img src="assets/youshi.jpg" alt="骑楼灯市">
+      <div class="tag"><b>酉时 · 骑楼灯市</b><span>DUSK · THE LANTERN BAZAAR</span></div>
+      <div class="clock">17:00 — 19:00</div>
+    </div>
+    <div class="scene-body">
+      <div class="sec-label">非遗焦点 · 佛山灯彩 · 广府小吃</div>
+      <div class="focus"><b>一盏一盏，亮起整条骑楼</b><p>扎灯技艺与镬气小吃，暮色里烟火气铺满石板路。</p></div>
+      <div class="stage" id="lanternStage">
+        <div class="stage-tip">逐一点亮六盏灯笼，把夜市的灯全点上</div>
+        <div class="lanterns" id="lanternRow">
+          <div class="lantern"><span class="tag">油纸</span><div class="wire"></div><div class="lamp"><svg viewBox="0 0 44 56"><rect x="7" y="11" width="30" height="34" rx="3" fill="#E9A93C" stroke="#4A443E" stroke-width="2"/><path d="M7 17 L37 17 M7 39 L37 39" stroke="#4A443E" stroke-width="1" opacity=".5"/><path d="M16 11 L16 45 M24 11 L24 45 M32 11 L32 45" stroke="#4A443E" stroke-width="1.1" opacity=".45"/><rect x="5" y="7" width="34" height="5" rx="2" fill="#4A443E"/><rect x="5" y="44" width="34" height="5" rx="2" fill="#4A443E"/></svg></div><div class="tassel"></div></div>
+          <div class="lantern"><span class="tag">纱灯</span><div class="wire"></div><div class="lamp"><svg viewBox="0 0 44 56"><rect x="10" y="15" width="24" height="30" rx="6" fill="#EFC97A" stroke="#4A443E" stroke-width="2"/><path d="M10 21 L34 21 M10 27 L34 27 M10 33 L34 33 M10 39 L34 39" stroke="#4A443E" stroke-width="1" opacity=".5"/><rect x="8" y="10" width="28" height="5" rx="2" fill="#4A443E"/><rect x="8" y="45" width="28" height="5" rx="2" fill="#4A443E"/><path d="M22 10 L22 6" stroke="#4A443E" stroke-width="2"/><path d="M18 6 L26 6" stroke="#4A443E" stroke-width="2"/></svg></div><div class="tassel"></div></div>
+          <div class="lantern"><span class="tag">走马</span><div class="wire"></div><div class="lamp"><svg viewBox="0 0 44 56"><rect x="8" y="18" width="28" height="26" rx="5" fill="#E9B56B" stroke="#4A443E" stroke-width="2"/><image href="data:image/png;base64,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" x="9.5" y="23" width="25" height="17" preserveAspectRatio="xMidYMid meet"/><path d="M22 14 C17 11 27 11 22 14" fill="none" stroke="#4A443E" stroke-width="1.6"/><path d="M22 14 L22 18" stroke="#4A443E" stroke-width="1.6"/><rect x="18" y="4" width="8" height="10" rx="2" fill="#4A443E"/><rect x="7" y="46" width="30" height="5" rx="2" fill="#4A443E"/></svg></div><div class="tassel"></div></div>
+          <div class="lantern"><span class="tag">宫灯</span><div class="wire"></div><div class="lamp"><svg viewBox="0 0 44 56"><path d="M13 12 L31 12 L35 26 L9 26 Z" fill="#E9A93C" stroke="#4A443E" stroke-width="2"/><path d="M9 26 L35 26 L31 40 L13 40 Z" fill="#EFB64D" stroke="#4A443E" stroke-width="2"/><path d="M9 26 L35 26" stroke="#4A443E" stroke-width="1.5"/><path d="M13 12 L9 26 L13 40 M31 12 L35 26 L31 40" stroke="#4A443E" stroke-width="1" opacity=".5"/><rect x="16" y="4" width="12" height="8" rx="2" fill="#4A443E"/><path d="M18 40 L18 49 M22 40 L22 53 M26 40 L26 47" stroke="#4A443E" stroke-width="1.8"/><circle cx="22" cy="53" r="2.4" fill="#8E2B21"/></svg></div><div class="tassel"></div></div>
+          <div class="lantern"><span class="tag">鱼灯</span><div class="wire"></div><div class="lamp"><svg viewBox="0 0 44 56"><path d="M7 39 C7 25 17 17 27 20 C37 23 41 31 39 39 C37 47 27 51 19 47 C12 43 7 43 7 39 Z" fill="#EFB64D" stroke="#4A443E" stroke-width="2"/><path d="M39 32 L44 28 L44 48 L39 44 Z" fill="#E9A93C" stroke="#4A443E" stroke-width="2"/><circle cx="15" cy="28" r="2.6" fill="#4A443E"/><path d="M12 24 C16 18 23 16 28 19" fill="none" stroke="#4A443E" stroke-width="1.4" opacity=".6"/><path d="M25 16 C28 19 30 22 31 25" fill="none" stroke="#4A443E" stroke-width="1.4" opacity=".6"/><path d="M22 8 L24 4 L26 8" fill="#4A443E"/></svg></div><div class="tassel"></div></div>
+          <div class="lantern"><span class="tag">龙灯</span><div class="wire"></div><div class="lamp"><svg viewBox="0 0 44 56"><rect x="8" y="21" width="28" height="26" rx="5" fill="#F4D29A" stroke="#4A443E" stroke-width="2"/><g transform="translate(9.5 23.5) scale(0.052)" fill="#4A443E"><path d="m365.969 153.342c-37.756-6.87-76.842-.349-109.1 21.48-8.76 5.92-14.49 14.41-16.83 23.73-2.34-9.32-8.07-17.81-16.83-23.73-32.281-21.845-71.371-28.345-109.1-21.48 15.563-32.05 69.527-52.436 125.93-22.73 56.446-29.74 110.388-9.277 125.93 22.73z"/><path d="m139.059 109.732c-20.4 9.287-35.82 24.193-43.21 46.03-4.71-4.98-9.24-10.1-13.59-15.33-32.9 5.18-57.6-1.44-75.43-20.17-16.397-17.229-1.058-45.926 22.6-41.59 4.36.8 8.75 1.14 13.14 1.02-7.33-14.65-13.55-29.94-18.53-45.59-10.173-31.865 37.383-47.713 48.76-16.24 1.39 3.87 3.17 7.57 5.3 11.08 4.88-2.13 9.09-5.57 12.15-9.99 13.346-19.267 43.16-5.934 38.35 16.41-3.26 15.15-13.01 28.1-26.36 35.67 11 14.09 23.32 27.04 36.82 38.7z"/><path d="m473.249 120.262c-17.83 18.73-42.53 25.34-75.43 20.17-4.35 5.23-8.88 10.35-13.59 15.33-7.375-21.795-22.764-36.722-43.21-46.03 13.5-11.66 25.82-24.61 36.82-38.7-13.35-7.57-23.1-20.52-26.36-35.67-4.811-22.347 25.005-35.676 38.35-16.41 3.06 4.42 7.27 7.86 12.15 9.99 2.13-3.51 3.91-7.21 5.3-11.08 11.377-31.472 58.933-15.626 48.76 16.24-4.99 15.65-11.2 30.94-18.53 45.59 4.38.11 8.78-.22 13.14-1.02 23.675-4.338 38.986 24.373 22.6 41.59z"/><path d="m302.819 324.482c-9.2-9.64-29.41-23.81-62.78-12.52-33.36-11.29-53.58 2.88-62.78 12.53-33.845 35.497-20.727 110.85 45.48 110.85h34.61c66.33 0 79.156-75.53 45.47-110.86zm-87.263 74.828c-4.386-2.17-15.093-8.709-19.771-22.525-3.391-10.014 11.757-15.163 15.155-5.131 2.838 8.383 9.682 12.312 11.712 13.316 9.483 4.691 2.397 19.038-7.096 14.34zm68.747-22.525c-4.678 13.814-15.385 20.354-19.771 22.525-9.482 4.692-16.589-9.641-7.098-14.34 2.03-1.005 8.875-4.935 11.714-13.316 3.391-10.015 18.553-4.903 15.155 5.131z"/><path d="m307.949 435.012c-26.82 58.335-112.01 60.072-136.84-.83 14.63 12.019 32.921 17.16 51.63 17.16 16.989 0 27.428.148 35.08-.01 18.68-.386 35.402-4.7 50.13-16.32z"/><path d="m356.919 218.463c-22.848-2.996-45.559.935-65.47 11.8-27.709 15.096-51.257-24.851-25.62-42.19 28.03-18.96 63.21-25.59 99.03-18.66 31.365 6.078 23.521 53.143-7.94 49.05z"/><path d="m188.63 230.262c-33.26-18.179-63.535-11.56-69.15-11.56-28.695 0-34.105-43.506-4.26-49.29 35.83-6.92 71-.3 99.03 18.66 25.672 17.363 2.031 57.255-25.62 42.19z"/><path d="m325.829 234.942c4.415 4.152 2.778 11.651-3.131 13.467-8.73 2.685-15.972 8.48-20.391 16.318-5.195 9.213-19.139 1.369-13.938-7.857 2.471-4.383 5.547-8.322 9.111-11.737-23.897 11.759-51.15-1.734-57.441-27.15-6.164 24.901-33.112 39.123-57.441 27.15 3.563 3.416 6.64 7.354 9.111 11.737 5.199 9.223-8.74 17.077-13.938 7.857-4.418-7.839-11.66-13.634-20.39-16.318-5.906-1.815-7.549-9.314-3.13-13.467-20.119-3.597-29.34.846-40.262-.63 9.292 34.937 26.04 72.636 36.56 102.16 11.455-26.408 34.95-44.15 64.771-44.593-7.463-4.412-3.49-15.961 5.115-14.821 3.901.516 7.778 1.257 11.604 2.212v-11.864c0-10.578 16-10.591 16 0v11.864c3.826-.955 7.703-1.697 11.605-2.212 8.583-1.145 12.599 10.401 5.113 14.823 29.693.44 53.247 18.021 64.772 44.591 10.612-29.782 27.254-67.17 36.56-102.16 11.512 1.559-19.704-3.041-40.26.63z"/><path d="m36.13 214.182c-5.4-8.99-4.34-20.33 2.64-28.23 7.38-8.35 13.5-17.75 18.18-27.88 6.175.252 12.665-.006 18.77-.65 3.6 4.11 7.31 8.15 11.13 12.09-13.142 17.964-8.86 44.331 8.86 57.39 8.785 39.556 27.907 81.674 39.79 115.01-7.31 0-14.62.57-21.86 1.72-13.071 2.128-25.673-6.838-27.64-20.42-2.34-16.06-12.39-29.92-26.89-37.08-8.93-4.41-14.21-14.13-13.13-24.19 1.869-17.42-1.531-33.939-9.85-47.76z"/><path d="m143.419 377.282c-20.901 8.246-33.492 46.105-68.44 57.39-62.589 20.15-79.055-58.548-29.07-75.83 9.994-3.451 15.235 11.651 5.23 15.13-30.039 10.371-23.86 59.257 18.93 45.47 31.164-10.063 41.601-49.979 71.55-58.34 2.615 9.958 1.197 6.699 1.8 16.18z"/><path d="m366.439 343.632c-7.24-1.15-14.55-1.72-21.86-1.72 11.977-33.601 31.009-75.475 39.79-115.01 17.634-13.018 22.066-39.328 8.86-57.38 3.81-3.95 7.53-7.98 11.13-12.1 6.128.646 12.602.901 18.76.65 4.69 10.13 10.81 19.53 18.19 27.88 6.98 7.9 8.04 19.24 2.64 28.23-8.32 13.82-11.72 30.34-9.85 47.76 1.08 10.06-4.2 19.78-13.13 24.19-14.5 7.16-24.55 21.02-26.89 37.08-1.955 13.498-14.496 22.56-27.64 20.42z"/><path d="m405.099 434.673c-34.997-11.301-47.468-49.126-68.44-57.4.606-9.526-.808-6.237 1.8-16.17 29.959 8.365 40.332 48.26 71.55 58.34 42.567 13.704 49.108-35.051 18.93-45.47-10.004-3.479-4.765-18.573 5.23-15.13 49.777 17.209 33.549 95.989-29.07 75.83z"/></g><path d="M22 14 C17 11 27 11 22 14" fill="none" stroke="#4A443E" stroke-width="1.6"/><path d="M22 14 L22 18" stroke="#4A443E" stroke-width="1.6"/><rect x="17" y="4" width="10" height="10" rx="2" fill="#4A443E"/><circle cx="22" cy="10.5" r="2.4" fill="#E9B56B"/><rect x="7" y="46" width="30" height="5" rx="2" fill="#4A443E"/></svg></div><div class="tassel"></div></div>
+        </div>
+      </div>
+      <button class="seal-btn" id="sealYou" disabled>尚未集得 · 灯</button>
+      <div class="seal-note">点亮六盏灯笼，即得「灯」字印记</div>
+    </div>
+  </section>
+
+  <!-- ===== 视图：子时 · 端砚刺绣 ===== -->
+  <section class="view scene" id="zi">
+    <div class="topbar">
+      <button class="back-btn" onclick="go('compass')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>时辰罗盘</button>
+      <span class="brand">子时 · 端砚刺绣</span>
+      <button class="reset-btn" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v6h6"/><path d="M4 10a8 8 0 1 1 2.3 5.7"/></svg>重玩</button>
+    </div>
+    <div class="scene-top">
+      <img src="assets/zishi.jpg" alt="月下祠堂">
+      <div class="tag"><b>子时 · 月下祠堂</b><span>MIDNIGHT · THE CRAFTS</span></div>
+      <div class="clock">23:00 — 01:00</div>
+    </div>
+    <div class="scene-body">
+      <div class="sec-label">非遗焦点 · 端砚制作 · 粤绣</div>
+      <div class="focus"><b>一方端砚，一架绣绷</b><p>石雕砚工与广绣针法，在月色里完成一场午夜对话。</p></div>
+      <div class="stage" id="inkStage">
+        <div class="stage-tip">按住研磨出墨，再点击绣绷走完针法</div>
+        <div class="inkstone" id="inkStone">
+          <div class="stone"></div>
+          <div class="slab"></div>
+          <div class="pool"><div class="ink"></div></div>
+          <div class="grind"></div>
+        </div>
+        <div class="grind-zone" id="grindHint">按住砚台滑动研磨 · 0%</div>
+        <div class="embroid" id="embroidBox">
+          <div class="frame"></div>
+          <div class="cloth">
+            <svg id="stitchSvg" viewBox="0 0 190 190">
+              <polyline points="95,18 95,46 82,46 78,50 85,96 79,130 70,158 120,158 111,130 105,96 112,50 108,46 95,46 82,46 105,96 120,158 70,158 85,96 108,46 82,46 111,130 120,158 70,158 79,130 108,46 95,46 95,158" fill="none" stroke="#C8B27A" stroke-width="2.2" stroke-dasharray="6 5" opacity="0.55"/>
+            </svg>
+            <div class="needle"></div>
+          </div>
+        </div>
+        <div class="stitch-count" id="stitchHint">点击绣绷走针 · 0 / 26 针</div>
+      </div>
+      <button class="seal-btn" id="sealZi" disabled>尚未集得 · 匠</button>
+      <div class="seal-note">研墨至满、绣满广州塔全形，即得「匠」字印记</div>
+    </div>
+  </section>
+
+  <!-- ===== 视图：汇聚 · 湾区时辰笺 ===== -->
+  <section class="view" id="gift">
+    <div class="topbar">
+      <button class="back-btn" onclick="go('compass')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>时辰罗盘</button>
+      <span class="brand">湾区时辰笺</span>
+      <button class="reset-btn" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v6h6"/><path d="M4 10a8 8 0 1 1 2.3 5.7"/></svg>重玩</button>
+    </div>
+    <div class="gift-body" id="giftBody"></div>
+  </section>
+
+  <!-- ===== 交互逻辑 ===== -->
+  <script>
+/* ===== 音频：自研合成（鼓 / 水 / 铃） ===== */
+var AC=null;
+function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(AC&&AC.state==='suspended') AC.resume(); return AC; }
+function drumHit(){
+  var c=ac(); if(!c) return;
+  var t=c.currentTime;
+  var o=c.createOscillator(), g=c.createGain();
+  o.type='sine'; o.frequency.setValueAtTime(86,t); o.frequency.exponentialRampToValueAtTime(46,t+.16);
+  g.gain.setValueAtTime(.7,t); g.gain.exponentialRampToValueAtTime(.001,t+.34);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t+.36);
+  var buf=c.createBuffer(1,c.sampleRate*.14,c.sampleRate), d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++){ d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2.2); }
+  var ns=c.createBufferSource(); ns.buffer=buf;
+  var f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1800; f.Q.value=.8;
+  var ng=c.createGain(); ng.gain.setValueAtTime(.4,t); ng.gain.exponentialRampToValueAtTime(.001,t+.14);
+  ns.connect(f).connect(ng).connect(c.destination); ns.start(t);
+}
+function waterSound(){
+  var c=ac(); if(!c) return;
+  var t=c.currentTime, buf=c.createBuffer(1,c.sampleRate*.5,c.sampleRate), d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++){ d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.5); }
+  var ns=c.createBufferSource(); ns.buffer=buf;
+  var f=c.createBiquadFilter(); f.type='lowpass'; f.frequency.value=900;
+  var g=c.createGain(); g.gain.setValueAtTime(.3,t); g.gain.exponentialRampToValueAtTime(.001,t+.5);
+  ns.connect(f).connect(g).connect(c.destination); ns.start(t);
+}
+function bellHit(freq){
+  var c=ac(); if(!c) return;
+  var t=c.currentTime;
+  [1,1.6,2.4].forEach(function(m){
+    var o=c.createOscillator(), g=c.createGain();
+    o.type='sine'; o.frequency.value=freq*m;
+    g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+.8);
+    o.connect(g).connect(c.destination); o.start(t); o.stop(t+.85);
+  });
+}
+function chime(){ [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){bellHit(f);}, i*120); }); }
+
+/* ===== 卯时 · 沏茶 ===== */
+var tea=0, teaAnim=null;
+function bindTea(){
+  var pot=document.getElementById('teaPot'), stage=document.getElementById('teaStage'), btn=document.getElementById('sealMao');
+  if(!pot||pot._b) return; pot._b=true;
+  pot.addEventListener('click', function(){
+    if(tea>=3) return;
+    /* 茶水从茶杯上方垂直落入杯口：按茶杯实际几何中心动态定位，倒完自动消失 */
+    var s=document.getElementById('teaStream');
+    var cup=document.getElementById('teaCup'+(tea+1));
+    var base=cup.closest('.teaset').getBoundingClientRect(), cr=cup.getBoundingClientRect();
+    var cx=cr.left-base.left+cr.width/2;   /* 杯口中心 x */
+    var cy=cr.top-base.top;                /* 杯口顶部 y */
+    var drop=36;
+    s.style.left=(cx-4)+'px';
+    s.style.top=(cy-drop)+'px';
+    s.style.height=drop+'px';
+    s.style.transform='rotate(0rad)';
+    stage.classList.add('streaming'); waterSound(); bellHit(880);
+    cup.querySelector('.tea').style.height='92%';
+    clearTimeout(teaAnim);
+    teaAnim=setTimeout(function(){
+      stage.classList.remove('streaming');
+      s.style.height='0px';   /* 水柱收束消失 */
+    }, 900);
+    tea++;
+    if(tea>=3){ btn.classList.add('ready'); btn.disabled=false; btn.textContent='点亮印记 · 茶'; chime(); toast('三杯沏成，茶香满室'); }
+  });
+}
+
+/* ===== 午时 · 擂鼓划桨 ===== */
+var drumN=0, paddleN=0;
+function bindDrum(){
+  var box=document.getElementById('drumBox'), canoe=document.getElementById('canoe'), prog=document.getElementById('paddleProg'),
+      app=document.getElementById('app'), btn=document.getElementById('sealWu');
+  if(!box||box._b) return; box._b=true;
+  function hit(){
+    drumN++; drumHit();
+    box.classList.remove('bang'); void box.offsetWidth; box.classList.add('bang');
+    app.classList.remove('screen-shake'); void app.offsetWidth; app.classList.add('screen-shake');
+    if(drumN%2===0){
+      paddleN++;
+      canoe.style.left=(6+paddleN*11)+'%';
+      canoe.classList.remove('paddling'); void canoe.offsetWidth; canoe.classList.add('paddling');
+      prog.querySelectorAll('i')[paddleN-1].classList.add('on');
+      if(paddleN>=5){
+        box.style.pointerEvents='none';
+        btn.classList.add('ready'); btn.disabled=false; btn.textContent='点亮印记 · 舟';
+        chime(); toast('龙舟冲线，鼓声震天');
+      }
+    }
+  }
+  box.addEventListener('click', hit);
+}
+
+/* ===== 酉时 · 点灯 ===== */
+var litN=0;
+function bindLanterns(){
+  var row=document.getElementById('lanternRow'), btn=document.getElementById('sealYou');
+  if(!row||row._b) return; row._b=true;
+  var lamps=row.querySelectorAll('.lantern');
+  Array.prototype.forEach.call(lamps, function(l){
+    l.addEventListener('click', function(){
+      if(l.classList.contains('lit')) return;
+      l.classList.add('lit'); litN++; bellHit(660);
+      if(litN>=6){ btn.classList.add('ready'); btn.disabled=false; btn.textContent='点亮印记 · 灯'; chime(); toast('六灯齐亮，夜市开张'); }
+    });
+  });
+}
+
+/* ===== 子时 · 研磨与刺绣 ===== */
+var grind=0, stitchN=0, grindAct=false;
+/* 走针绣纹：湾区地标「广州塔·小蛮腰」（长天线·蜂腰·菱形网格 26 段） */
+var STITCH=[
+  'M95 18 L95 46','M95 46 L82 46','M82 46 L78 50','M78 50 L85 96','M85 96 L79 130','M79 130 L70 158','M70 158 L120 158','M120 158 L111 130','M111 130 L105 96','M105 96 L112 50','M112 50 L108 46','M108 46 L95 46','M95 46 L82 46','M82 46 L105 96','M105 96 L120 158','M120 158 L70 158','M70 158 L85 96','M85 96 L108 46','M108 46 L82 46','M82 46 L111 130','M111 130 L120 158','M120 158 L70 158','M70 158 L79 130','M79 130 L108 46','M108 46 L95 46','M95 46 L95 158'];
+function bindInk(){
+  var stone=document.getElementById('inkStone'), stage=document.getElementById('inkStage'),
+      hint=document.getElementById('grindHint'), btn=document.getElementById('sealZi');
+  if(!stone||stone._b) return; stone._b=true;
+  function addG(by){
+    if(grind>=100) return;
+    grind=Math.min(100, grind+by);
+    hint.textContent='按住砚台滑动研磨 · '+grind+'%';
+    if(grind>=100){ stage.classList.add('grind-on'); stage.classList.remove('grinding'); hint.textContent='墨已研足 · 可走针线'; }
+  }
+  ['touchstart','mousedown'].forEach(function(ev){
+    stone.addEventListener(ev, function(e){ e.preventDefault(); grindAct=true; addG(8); if(grind<100) stage.classList.add('grinding'); });
+  });
+  ['touchmove','mousemove'].forEach(function(ev){
+    stone.addEventListener(ev, function(e){ if(grindAct){ e.preventDefault(); addG(4); if(grind<100) stage.classList.add('grinding'); } });
+  });
+  ['touchend','mouseup','touchcancel'].forEach(function(ev){
+    document.addEventListener(ev, function(){ grindAct=false; stage.classList.remove('grinding'); });
+  });
+  var svg=document.getElementById('stitchSvg'), emb=document.getElementById('embroidBox'), sh=document.getElementById('stitchHint');
+  function drawStitch(i){
+    var ns='http://www.w3.org/2000/svg';
+    var parts=STITCH[i].split(' ');
+    var ln=document.createElementNS(ns,'line');
+    ln.setAttribute('x1',parts[0].slice(1)); ln.setAttribute('y1',parts[1]);
+    ln.setAttribute('x2',parts[2].slice(1)); ln.setAttribute('y2',parts[3]);
+    ln.setAttribute('stroke','#B03A2E'); ln.setAttribute('stroke-width','4.2'); ln.setAttribute('stroke-linecap','round');
+    ln.setAttribute('class','stitch-line');
+    svg.appendChild(ln);
+  }
+  if(!emb._b){ emb._b=true;
+    emb.addEventListener('click', function(){
+      if(grind<100){ toast('先研磨出墨，再走针线'); return; }
+      if(stitchN>=STITCH.length) return;
+      emb.classList.add('stitching');
+      drawStitch(stitchN); stitchN++;
+      sh.textContent='点击绣绷走针 · '+stitchN+' / '+STITCH.length+' 针';
+      if(stitchN>=STITCH.length){
+        emb.classList.remove('stitching');
+        btn.classList.add('ready'); btn.disabled=false; btn.textContent='点亮印记 · 匠';
+        chime(); toast('绣纹收针，匠心落定');
+      }
+    });
+  }
+}
+
+/* ===== 印记领取与汇聚 ===== */
+var SEAL_IDS={mao:'sealMao',wu:'sealWu',you:'sealYou',zi:'sealZi'};
+function bindSeals(){
+  [['mao','茶'],['wu','舟'],['you','灯'],['zi','匠']].forEach(function(pp){
+    var k=pp[0], btn=document.getElementById(SEAL_IDS[k]);
+    if(!btn||btn._b) return; btn._b=true;
+    btn.addEventListener('click', function(){
+      if(!btn.classList.contains('ready')||S.seals[k]) return;
+      S.seals[k]=true; btn.classList.remove('ready'); btn.classList.add('done'); btn.disabled=true; btn.textContent='已得 · '+pp[1];
+      var names={mao:'卯时 · 工夫茶',wu:'午时 · 龙舟鼓乐',you:'酉时 · 灯彩夜市',zi:'子时 · 端砚刺绣'};
+      toast('已集得「'+pp[1]+'」印记 · '+names[k]);
+      var n=['mao','wu','you','zi'].filter(function(x){return S.seals[x];}).length;
+      refreshSeals();
+      if(n===4){ setTimeout(function(){ toast('四印齐集 — 时辰笺已点亮，去罗盘看看吧'); }, 900); }
+    });
+  });
+}
+
+/* ===== 汇聚视图 ===== */
+function todayStr(){
+  var d=new Date(); return d.getFullYear()+' 年 '+(d.getMonth()+1)+' 月 '+d.getDate()+' 日';
+}
+function renderGift(){
+  var body=document.getElementById('giftBody'), n=['mao','wu','you','zi'].filter(function(k){return S.seals[k];}).length;
+  if(n<4){
+    body.innerHTML='<div class="gift-head"><div class="kicker">支线汇聚 · CONVERGE</div><h2 class="serif-title">四时汇聚 · 湾区手信</h2><p>走完四条时辰支线，四色汇聚，点亮专属时辰笺</p></div>'+
+      '<div class="bands"><i></i><i></i><i></i><i></i></div>'+
+      '<div class="gift-lock"><div class="lock-ring">笺</div><p>尚需 <b style="color:var(--cinnabar)">'+(4-n)+'</b> 枚时辰印记<br>卯茶 · 午舟 · 酉灯 · 子匠</p>'+
+      '<span class="to-compass" onclick="go(\'compass\')">回到时辰罗盘</span></div>';
+    return;
+  }
+  body.innerHTML='<div class="gift-head"><div class="kicker">支线汇聚 · CONVERGE</div><h2 class="serif-title">四时汇聚 · 湾区时辰笺</h2><p>四色汇聚，一纸湾区，四时好风景</p></div>'+
+    '<div class="bands"><i></i><i></i><i></i><i></i></div>'+
+    '<div class="letter"><div class="paper-top"><span>湾区十二时辰</span><span>时辰笺 · No.01</span></div>'+
+      '<div class="letter-title serif-title">一纸湾区</div>'+
+      '<div class="letter-sub">四时好风景</div>'+
+      '<div class="seal-row"><i>茶</i><i>舟</i><i>灯</i><i>匠</i></div>'+
+      '<div class="who">时辰旅人 · '+todayStr()+'</div>'+
+      '<div class="when">TWELVE HOURS IN THE BAY AREA</div>'+
+      '<div class="slogan">光自时辰来 · 影随四时生</div>'+
+    '</div>'+
+    '<div class="gift-actions"><button class="btn-save" onclick="saveLetter()">保存时辰笺</button><button class="btn-share" onclick="shareLetter()">分享给好友</button></div>'+
+    '<div class="gift-tip">保存为图片即得个人时辰笺壁纸 · 好友接力可重游湾区十二时辰</div>';
+}
+function makeLetterCanvas(){
+  var cv=document.createElement('canvas'); cv.width=750; cv.height=1200;
+  var x=cv.getContext('2d');
+  var g=x.createLinearGradient(0,0,750,1200); g.addColorStop(0,'#26363B'); g.addColorStop(1,'#141A1C');
+  x.fillStyle=g; x.fillRect(0,0,750,1200);
+  x.strokeStyle='rgba(245,241,232,.28)'; x.lineWidth=2; x.strokeRect(28,28,694,1144);
+  x.fillStyle='rgba(245,241,232,.78)'; x.font='26px "Noto Serif SC", serif'; x.textAlign='center';
+  x.fillText('湾区十二时辰 · 时辰笺', 375, 110);
+  x.fillStyle='#D4AF6E'; x.font='20px "Noto Serif SC", serif';
+  x.fillText('TWELVE HOURS IN THE BAY AREA', 375, 152);
+  var colors=['#6B7F5A','#B03A2E','#D4AF6E','#1E2A2E'];
+  for(var i=0;i<4;i++){ x.fillStyle=colors[i]; x.fillRect(120+i*128, 210, 110, 14); }
+  x.fillStyle='#F5F1E8'; x.font='88px "ZCOOL XiaoWei", serif';
+  x.fillText('一纸湾区', 375, 430);
+  x.fillStyle='#D4AF6E'; x.font='34px "Noto Serif SC", serif';
+  x.fillText('四 时 好 风 景', 375, 520);
+  var seals=['茶','舟','灯','匠'];
+  for(var j=0;j<4;j++){
+    x.fillStyle='#B03A2E';
+    x.fillRect(255+j*60, 620, 50, 50);
+    x.fillStyle='#F5F1E8'; x.font='30px "ZCOOL XiaoWei", serif';
+    x.fillText(seals[j], 280+j*60, 655);
+  }
+  x.fillStyle='rgba(245,241,232,.9)'; x.font='30px "Noto Serif SC", serif';
+  x.fillText('时辰旅人 · '+todayStr(), 375, 780);
+  x.strokeStyle='rgba(212,175,110,.6)'; x.lineWidth=1; x.beginPath(); x.moveTo(150,900); x.lineTo(600,900); x.stroke();
+  x.fillStyle='#D4AF6E'; x.font='30px "Noto Serif SC", serif';
+  x.fillText('光自时辰来 · 影随四时生', 375, 968);
+  x.fillStyle='rgba(245,241,232,.5)'; x.font='22px "Noto Serif SC", serif';
+  x.fillText('2026 东方创意之星 · 大湾区旅游文创主题赛', 375, 1050);
+  return cv;
+}
+function saveLetter(){
+  if(!(S.seals.mao&&S.seals.wu&&S.seals.you&&S.seals.zi)) return;
+  var cv=makeLetterCanvas();
+  var a=document.createElement('a');
+  a.href=cv.toDataURL('image/png'); a.download='湾区时辰笺-'+Date.now()+'.png';
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('时辰笺已保存为图片');
+}
+function shareLetter(){
+  if(!(S.seals.mao&&S.seals.wu&&S.seals.you&&S.seals.zi)) return;
+  var cv=makeLetterCanvas();
+  if(navigator.share){
+    cv.toBlob(function(blob){
+      var f=new File([blob],'湾区时辰笺.png',{type:'image/png'});
+      navigator.share({files:[f], title:'湾区时辰笺', text:'我走完了湾区十二时辰的四条支线，这是我的时辰笺'}).catch(function(){});
+    },'image/png');
+  } else { toast('长按保存时辰笺图片即可分享'); }
+}
+
+/* ===== 重置重玩 ===== */
+function resetAll(){
+  S.seals={mao:false,wu:false,you:false,zi:false};
+  tea=0;
+  ['teaCup1','teaCup2','teaCup3'].forEach(function(id){
+    var c=document.getElementById(id); if(c) c.querySelector('.tea').style.height='0%';
+  });
+  drumN=0; paddleN=0;
+  var canoe=document.getElementById('canoe'); if(canoe){ canoe.style.left='6%'; canoe.classList.remove('paddling'); }
+  var box=document.getElementById('drumBox'); if(box) box.style.pointerEvents='';
+  var prog=document.getElementById('paddleProg'); if(prog) prog.querySelectorAll('i').forEach(function(i){i.classList.remove('on');});
+  litN=0;
+  document.querySelectorAll('#lanternRow .lantern').forEach(function(l){ l.classList.remove('lit'); });
+  grind=0; stitchN=0;
+  var ink=document.getElementById('inkStage'); if(ink){ ink.classList.remove('grind-on'); ink.classList.remove('grinding'); }
+  var gh=document.getElementById('grindHint'); if(gh) gh.textContent='按住砚台滑动研磨 · 0%';
+  var svg=document.getElementById('stitchSvg');
+  if(svg){ svg.innerHTML='<polyline points="95,18 95,46 82,46 78,50 85,96 79,130 70,158 120,158 111,130 105,96 112,50 108,46 95,46 82,46 105,96 120,158 70,158 85,96 108,46 82,46 111,130 120,158 70,158 79,130 108,46 95,46 95,158" fill="none" stroke="#C8B27A" stroke-width="2.2" stroke-dasharray="6 5" opacity="0.55"/>'; }
+  var sh=document.getElementById('stitchHint'); if(sh) sh.textContent='点击绣绷走针 · 0 / '+STITCH.length+' 针';
+  var emb=document.getElementById('embroidBox'); if(emb) emb.classList.remove('stitching');
+  var initials={sealMao:'尚未集得 · 茶',sealWu:'尚未集得 · 舟',sealYou:'尚未集得 · 灯',sealZi:'尚未集得 · 匠'};
+  Object.keys(initials).forEach(function(id){
+    var b=document.getElementById(id); if(b){ b.disabled=true; b.classList.remove('ready'); b.classList.remove('done'); b.textContent=initials[id]; }
+  });
+  if(document.getElementById('compass')) renderCompass();
+  go('cover');
+  toast('已重置 · 重新开始湾区时辰之旅');
+}
+
+/* ===== 初始化 ===== */
+function init(){
+  renderCompass();
+  bindTea(); bindDrum(); bindLanterns(); bindInk(); bindSeals();
+  window.addEventListener('hashchange', function(){
+    var h=(location.hash||'').replace('#','');
+    if(document.getElementById(h)) go(h);
+  });
+}
+window.addEventListener('load', init);
+</script>
+
+</div>
+<div id="toast" style="position:fixed;left:50%;bottom:60px;transform:translateX(-50%) translateY(20px);background:rgba(30,42,46,.94);color:#F5F1E8;font-size:13px;letter-spacing:.14em;padding:10px 18px;border-radius:6px;opacity:0;transition:all .3s;z-index:99;pointer-events:none;max-width:82vw;text-align:center;"></div>
+<script>
+/* ===== 状态 ===== */
+var S = { seals:{mao:false, wu:false, you:false, zi:false}, audio:null };
+
+/* ===== 视图路由 ===== */
+function go(id){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  if(id==='compass') renderCompass();
+  if(id==='gift') renderGift();
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  var t=document.getElementById('toast'); t.textContent=msg; t.style.opacity=1; t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._h); t._h=setTimeout(function(){t.style.opacity=0; t.style.transform='translateX(-50%) translateY(20px)';}, 2200);
+}
+
+/* ===== 时辰罗盘 ===== */
+var CZ = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+var MAIN = {mao:{z:'卯'}, wu:{z:'午'}, you:{z:'酉'}, zi:{z:'子'}};
+function renderCompass(){
+  var w=document.getElementById('compassWrap'); w.innerHTML='';
+  var d=document.createElement('div'); d.className='compass-disc';
+  d.innerHTML='<div class="core"><b>十二<br>时辰</b><span>湾区时辰</span></div>';
+  w.appendChild(d);
+  ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'].forEach(function(z){
+    var a=((CZ.indexOf(z))*30-90)*Math.PI/180;
+    var cx=50+43*Math.cos(a), cy=50+43*Math.sin(a);
+    var main=null; Object.keys(MAIN).forEach(function(k){ if(MAIN[k].z===z) main=k; });
+    var el=document.createElement('div');
+    el.className='cz'+(main?' main':'')+(main&&S.seals[main]?' hot':'');
+    el.style.left=cx+'%'; el.style.top=cy+'%';
+    el.textContent=z;
+    if(main){
+      el.addEventListener('click',function(){ go(main); });
+    }
+    w.appendChild(el);
+  });
+  refreshSeals();
+}
+function refreshSeals(){
+  document.querySelectorAll('#sealStrip .slot').forEach(function(s){
+    s.classList.toggle('filled', !!S.seals[s.dataset.k]);
+  });
+  var n=['mao','wu','you','zi'].filter(function(k){return S.seals[k];}).length;
+  var h=document.getElementById('giftHint');
+  if(n===4){ h.innerHTML='四印齐集 — <b style="color:var(--cinnabar)">点亮湾区时辰笺</b> <span style="display:inline-block;margin-top:4px;color:var(--cinnabar);border-bottom:1px solid var(--cinnabar);cursor:pointer;" onclick="go(\'gift\')">前往领取 →</span>'; }
+  else h.textContent='集齐茶 · 舟 · 灯 · 匠 四枚印记，解锁湾区时辰笺（已得 '+n+' / 4）';
+}
+</script>
+</body>
+</html>
